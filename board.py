@@ -70,22 +70,164 @@ class Board():
         return moves
         
     def getPawnMoves(self, r, c, moves):
-        pass
+        if self.whiteToMove:
+            if self.board[r-1][c] == 0:
+                moves.append(Move((r,c), (r-1,c), self.board))
+                if r == 6 and self.board[r-2][c] == 0:
+                    moves.append(Move((r,c), (r-2,c), self.board))
+            if c - 1 >= 0:
+                if self.board[r-1][c-1] < 0:
+                    moves.append(Move((r,c), (r-1,c-1), self.board))
+            if c + 1 <= 7:
+                if self.board[r-1][c+1] < 0:
+                    moves.append(Move((r,c), (r-1,c+1), self.board))
+        else:
+            if self.board[r+1][c] == 0:
+                moves.append(Move((r,c), (r+1,c), self.board))
+                if r == 1 and self.board[r+2][c] == 0:
+                    moves.append(Move((r,c), (r+2,c), self.board))
+            if c - 1 >= 0:
+                if self.board[r+1][c-1] > 0:
+                    moves.append(Move((r,c), (r+1,c-1), self.board))
+            if c + 1 <= 7:
+                if self.board[r+1][c+1] > 0:
+                    moves.append(Move((r,c), (r+1,c+1), self.board))
 
     def getKnightMoves(self, r, c, moves):
-        pass
+        KnightMoves = ((-2,-1),(-2,1),(2,1),(2,-1),(1,2),(-1,2),(-1,-2),(1,-2))
+        allyColor = "w" if self.whiteToMove else "b"
+
+        for m in KnightMoves:
+            endRow = r+m[0]
+            endCol = c+m[1]
+            if 0 <= endRow <= 7 and 0 <= endCol <= 7:
+                endPieceColor = "empty"
+                if(self.board[endRow][endCol] < 0): endPieceColor = "b"
+                elif(self.board[endRow][endCol] > 0): endPieceColor = "w"
+                if endPieceColor != allyColor:
+                    moves.append(Move((r,c), (endRow,endCol), self.board))
 
     def getBishopMoves(self, r, c, moves):
-        pass
+        if self.whiteToMove:
+            i = 1
+            while(r+i <= 7 and c+i <= 7 and self.board[r+i][c+i] <= 0):
+                moves.append(Move((r,c), (r+i,c+i), self.board))
+                if(self.board[r+i][c+i] < 0):
+                    break
+                i+=1
+            i = 1
+            while(r+i <= 7 and c-i >= 0 and self.board[r+i][c-i] <= 0):
+                moves.append(Move((r,c), (r+i,c-i), self.board))
+                if(self.board[r+i][c-i] < 0):
+                    break
+                i+=1
+            i = 1
+            while(r-i >= 0 and c-i >= 0 and self.board[r-i][c-i] <= 0):
+                moves.append(Move((r,c), (r-i,c-i), self.board))
+                if(self.board[r-i][c-i] < 0):
+                    break
+                i+=1
+            i = 1
+            while(r-i >= 0 and c+i <= 7 and self.board[r-i][c+i] <= 0):
+                moves.append(Move((r,c), (r-i,c+i), self.board))
+                if(self.board[r-i][c+i] < 0):
+                    break
+                i+=1
+        else:
+            i = 1
+            while(r+i <= 7 and c+i <= 7 and self.board[r+i][c+i] >= 0):
+                moves.append(Move((r,c), (r+i,c+i), self.board))
+                if(self.board[r+i][c+i] > 0):
+                    break
+                i+=1
+            i = 1
+            while(r+i <= 7 and c-i >= 0 and self.board[r+i][c-i] >= 0):
+                moves.append(Move((r,c), (r+i,c-i), self.board))
+                if(self.board[r+i][c-i] > 0):
+                    break
+                i+=1
+            i = 1
+            while(r-i >= 0 and c-i >= 0 and self.board[r-i][c-i] >= 0):
+                moves.append(Move((r,c), (r-i,c-i), self.board))
+                if(self.board[r-i][c-i] > 0):
+                    break
+                i+=1
+            i = 1
+            while(r-i >= 0 and c+i <= 7 and self.board[r-i][c+i] >= 0):
+                moves.append(Move((r,c), (r-i,c+i), self.board))
+                if(self.board[r-i][c+i] > 0):
+                    break
+                i+=1
 
     def getRookMoves(self, r, c, moves):
-        pass
+        if self.whiteToMove:
+            i = r+1
+            while(i <= 7 and self.board[i][c] <= 0):
+                moves.append(Move((r,c), (i,c), self.board))
+                if(self.board[i][c] < 0):
+                    break
+                i+=1
+            i = r-1
+            while(i >= 0 and self.board[i][c] <= 0):
+                moves.append(Move((r,c), (i,c), self.board))
+                if(self.board[i][c] < 0):
+                    break
+                i-=1
+            i = c-1
+            while(i >= 0 and self.board[r][i] <= 0):
+                moves.append(Move((r,c), (r,i), self.board))
+                if(self.board[r][i] < 0):
+                    break
+                i-=1
+            i = c+1
+            while(i <= 7 and self.board[r][i] <= 0):
+                moves.append(Move((r,c), (r,i), self.board))
+                if(self.board[r][i] < 0):
+                    break
+                i+=1
+        else:
+            i = r+1
+            while(i <= 7 and self.board[i][c] >= 0):
+                moves.append(Move((r,c), (i,c), self.board))
+                if(self.board[i][c] > 0):
+                    break
+                i+=1
+            i = r-1
+            while(i >= 0 and self.board[i][c] >= 0):
+                moves.append(Move((r,c), (i,c), self.board))
+                if(self.board[i][c] > 0):
+                    break
+                i-=1
+            i = c-1
+            while(i >= 0 and self.board[r][i] >= 0):
+                moves.append(Move((r,c), (r,i), self.board))
+                if(self.board[r][i] > 0):
+                    break
+                i-=1
+            i = c+1
+            while(i <= 7 and self.board[r][i] >= 0):
+                moves.append(Move((r,c), (r,i), self.board))
+                if(self.board[r][i] > 0):
+                    break
+                i+=1
 
     def getQueenMoves(self, r, c, moves):
-        pass
+        self.getBishopMoves(r,c,moves)
+        self.getRookMoves(r,c,moves)
 
     def getKingMoves(self, r, c, moves):
-        pass
+        kingMoves = ((-1,-1),(-1,0),(1,0),(0,1),(0,-1),(1,1),(-1,1),(1,-1))
+        allyColor = "w" if self.whiteToMove else "b"
+
+        for i in range(8):
+            endRow = r + kingMoves[i][0]
+            endCol = c + kingMoves[i][1]
+            if 0 <= endRow <= 7 and 0 <= endCol <= 7:
+                endPieceColor = "empty"
+                if(self.board[endRow][endCol] < 0): endPieceColor = "b"
+                elif(self.board[endRow][endCol] > 0): endPieceColor = "w"
+                if endPieceColor != allyColor:
+                    moves.append(Move((r,c), (endRow,endCol), self.board))
 
 class Move():
     ranksToRows = {'1':7, '2':6, '3':5, '4':4, '5':3, '6':2, '7':1, '8':0}
