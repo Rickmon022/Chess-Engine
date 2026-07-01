@@ -31,6 +31,11 @@ class Board():
         
         self.whiteToMove = True
         self.moveLog = []
+        # king's position
+        self.blackKingPos = (0,4)
+        self.whiteKingPos = (7,4)
+        self.checkmate = False
+        self.stalemate = True
 
     def makeMove(self, move):
         self.board[move.startSq[0], move.startSq[1]] = 0
@@ -38,15 +43,59 @@ class Board():
         self.moveLog.append(move)
         self.whiteToMove = not self.whiteToMove
 
+        if move.pieceMoved == 6:
+            self.whiteKingPos = move.endSq
+        elif move.pieceMoved == -6:
+            self.blackKingPos = move.endSq
+
     def undoMove(self):
         if len(self.moveLog) != 0:
             move = self.moveLog.pop()
             self.board[move.startSq[0], move.startSq[1]] = move.pieceMoved
             self.board[move.endSq[0], move.endSq[1]] = move.pieceCaptured
             self.whiteToMove = not self.whiteToMove
+            if move.pieceMoved == 6:
+                self.whiteKingPos = move.startSq
+            elif move.pieceMoved == -6:
+                self.blackKingPos = move.startSq
 
     def getValidMoves(self):
-        return self.getAllPossibleMoves()
+        # 1. generating all possible moves
+        moves = self.getAllPossibleMoves()
+        # 2. for each move, making the move
+        for i in range(len(moves)-1,-1,-1):
+            self.makeMove(moves[i])
+            self.whiteToMove = not self.whiteToMove # checking from opponents side
+            if self.inCheck():
+                moves.pop(i)
+            self.whiteToMove = not self.whiteToMove
+            self.undoMove()
+        if len(moves) == 0:
+            if self.inCheck():
+                self.checkmate = True
+            else:
+                self.stalemate = True
+        else:
+            self.checkmate = False
+            self.stalemate = False
+            
+        return moves
+
+    def inCheck(self):
+        if self.whiteToMove:
+            return self.sqUnderAttack(self.whiteKingPos[0], self.whiteKingPos[1])
+        else:
+            return self.sqUnderAttack(self.blackKingPos[0], self.blackKingPos[1])
+        
+    def sqUnderAttack(self, r, c):
+        self.whiteToMove = not self.whiteToMove
+        oppMoves = self.getAllPossibleMoves()
+        self.whiteToMove = not self.whiteToMove
+        
+        for move in oppMoves:
+            if move.endSq == (r,c):
+                return True
+        return False
 
     def getAllPossibleMoves(self):
         moves = []
